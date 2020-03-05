@@ -1,0 +1,229 @@
+---
+title: '#rstats TIL - Tips and Tricks'
+date: 6 March 2020
+author: 'Carl Frederick'
+output:
+  xaringan::moon_reader:
+    css: ["default", "cbf-xaringan.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: pygments
+      highlightLines: true
+      countIncrementalSlides: false
+      beforeInit: "cbf-macros.js"
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+library(tidyverse)
+```
+
+# Useful commands
+
+Did the new package version you just updated break some old code? You can 
+downgrade to the version that was working with the `install_version()`
+command from the `{remotes}` (or `{devtools}`) package
+
+```{r}
+packageVersion("devtools")
+```
+
+```{r, eval = FALSE}
+#If this was the problem I could then do 
+remotes::install_version("devtools", "1.13.3") #<<
+```
+
+---
+
+`try()` - error handling, esp for programming
+
+---
+
+`duplicated()` - id duplicate entries in data.frame
+
+---
+
+`knitr::spin()` https://deanattali.com/2015/03/24/knitrs-best-hidden-gem-spin/
+
+---
+
+
+# Extreme Table Makeover 
+
+_LABELS_
+
+<blockquote class="twitter-tweet tw-align-center"><p lang="en" dir="ltr">TIL if you name arguments in the table function - the table prints with titles. <a href="https://twitter.com/hashtag/rstats?src=hash&amp;ref_src=twsrc%5Etfw">#rstats</a> <a href="https://t.co/xpGJi6oW7v">pic.twitter.com/xpGJi6oW7v</a></p>&mdash; Caroline Ledbetter (@C_line_sealion) <a href="https://twitter.com/C_line_sealion/status/1092844700556390400?ref_src=twsrc%5Etfw">February 5, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+```{r, echo = FALSE, eval = FALSE}
+table("Number of Cylinders" = mtcars$cyl, 
+      "Number of Gears" = mtcars$gear) 
+```
+
+
+---
+
+# Extreme Table Makeover 
+
+_MARGINS_
+
+You can also add margins to the tables
+
+- For a row of marginal statistics, `margin = 1`
+- For a column of marginal statistics, `margin = 2`
+- For both (default), `margin = c(1,2)`
+- default FUN is sum, but can be anything
+
+```{r}
+table("Number of Cylinders" = mtcars$cyl, 
+      "Number of Gears" = mtcars$gear) %>% 
+  addmargins(margin = c(1), FUN = mean) #<<
+```
+
+---
+
+# Pimp my tables 
+
+_PROPORTIONS_
+
+```{r}
+table("Number of Cylinders" = mtcars$cyl, 
+      "Number of Gears" = mtcars$gear) %>% 
+  prop.table(margin = 1) %>% #<<
+  addmargins(2)
+```
+
+---
+
+# Pimp my tables 
+
+_3+ WAY TABLES_
+
+```{r}
+table("Number of Cylinders" = mtcars$cyl, 
+      "Number of Gears" = mtcars$gear,
+      "Engine Shape" = mtcars$vs) %>% 
+  ftable() #<<
+```
+
+
+---
+
+#Finishing `ggplot`s
+
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr"><a href="https://twitter.com/hashtag/rstats?src=hash&amp;ref_src=twsrc%5Etfw">#rstats</a> TIL: you can use scales::percent() for axes to turn decimal data into percentage labels. Previously, I kept having to do a mutate(data, value = value *100) step.</p>&mdash; Karl Hailperin (@khailper) <a href="https://twitter.com/khailper/status/1078745039583526914?ref_src=twsrc%5Etfw">December 28, 2018</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+
+---
+
+# Finishing `ggplot`s
+
+Formatting axis scales/labels without changing the data.
+
+```{r, fig.width=6, fig.height=4}
+ggplot(diamonds, aes(x = carat, y = price)) + 
+  geom_point() + 
+  scale_y_continuous(label = scales::dollar) #<<
+```
+
+---
+
+# Finishing `ggplot`s
+
+Formatting axis scales/labels without changing the data.
+
+```{r, fig.width=6, fig.height=4}
+ggplot(diamonds, aes(x = cut)) + 
+  geom_bar() +
+  scale_y_continuous(label = scales::comma) #<<
+```
+
+---
+
+# Finishing `ggplot`s
+
+Formatting axis scales/labels without changing the data.
+
+```{r, fig.width=6, fig.height=4}
+diamonds %>% 
+  group_by(cut) %>% 
+  summarize(pct = n() / nrow(diamonds)) %>% 
+  ggplot(aes(x = cut, y = pct)) + 
+    geom_bar(stat = "identity") +
+    scale_y_continuous(label = scales::percent) #<<
+```
+
+---
+
+# Finishing `ggplot`s
+
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">😱 HOW. HAVE. I. NEVER. HEARD. OF. PATCHWORK?!?! <br><br>So easy to combine multiple <a href="https://twitter.com/hashtag/rstats?src=hash&amp;ref_src=twsrc%5Etfw">#rstats</a> plots into one image. <a href="https://twitter.com/hashtag/dataviz?src=hash&amp;ref_src=twsrc%5Etfw">#dataviz</a> <a href="https://t.co/x8pQ1tGfd8">https://t.co/x8pQ1tGfd8</a> <a href="https://t.co/Bf3uWxxmcU">pic.twitter.com/Bf3uWxxmcU</a></p>&mdash; Laura Ellis (@LittleMissData) <a href="https://twitter.com/LittleMissData/status/1229176433123168256?ref_src=twsrc%5Etfw">February 16, 2020</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+---
+
+# `tidyverse` gems
+  
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">wowwww ok TIL there is an <a href="https://twitter.com/hashtag/rstats?src=hash&amp;ref_src=twsrc%5Etfw">#rstats</a> function to *uncount* data - have count data but want the raw data back? tidyr::uncount() to the rescue 🤯 <a href="https://t.co/PN9fVIe1bl">pic.twitter.com/PN9fVIe1bl</a></p>&mdash; Sharla Gelfand (@sharlagelfand) <a href="https://twitter.com/sharlagelfand/status/1224876298289500163?ref_src=twsrc%5Etfw">February 5, 2020</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+---
+  
+# `tidyverse` gems
+
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">TIL about <a href="https://twitter.com/hashtag/rstats?src=hash&amp;ref_src=twsrc%5Etfw">#rstats</a> stringr::str_squish()! <br><br>str_trim() just gets rid of whitespace at the beginning and end of a string, but str_squish() does that *and* reduces repeated whitespace within the string, too! <br><br>thanks <a href="https://twitter.com/_sharleen_w?ref_src=twsrc%5Etfw">@_sharleen_w</a> for the tip 🙏🙏 <a href="https://t.co/1sATJaaEJi">pic.twitter.com/1sATJaaEJi</a></p>&mdash; Sharla Gelfand (@sharlagelfand) <a href="https://twitter.com/sharlagelfand/status/1171064192939560960?ref_src=twsrc%5Etfw">September 9, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> 
+
+---
+
+#`tidyverse` gems
+
+  - if_else() vs ifelse() ... vs case_when()
+
+
+---
+
+# RStudio Tips and Tricks
+
+- alt+drag for multiple line typing
+
+---
+
+# RStudio Tips and Tricks
+
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">Holy mother forking shirt balls! TIL if you press CTRL + UP in the console you get a list of history to scroll and select. <a href="https://twitter.com/hashtag/Rstats?src=hash&amp;ref_src=twsrc%5Etfw">#Rstats</a> <a href="https://twitter.com/hashtag/rstudio?src=hash&amp;ref_src=twsrc%5Etfw">#rstudio</a> <a href="https://t.co/WeSo48anXG">pic.twitter.com/WeSo48anXG</a></p>&mdash; Dale Maschette 🐟🧗
+♂️ (@Dale_Masch) <a href="https://twitter.com/Dale_Masch/status/1100651213232627712?ref_src=twsrc%5Etfw">February 27, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+---
+
+- .Rproj
+
+---
+
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">TIL that <a href="https://twitter.com/rstudio?ref_src=twsrc%5Etfw">@rstudio</a> 1.2 uses header comments in your code (# looks like this ----) to give you feedback on the progress of your script when you &quot;Source as Local Job&quot;. Very cool! <a href="https://twitter.com/hashtag/rstats?src=hash&amp;ref_src=twsrc%5Etfw">#rstats</a> <a href="https://t.co/cA0N9xlRV4">pic.twitter.com/cA0N9xlRV4</a></p>&mdash; Garrick (@grrrck) <a href="https://twitter.com/grrrck/status/1103671151295979520?ref_src=twsrc%5Etfw">March 7, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+---
+
+# ThaR be dragons
+
+```{r}
+round(1.5)
+
+round(0.5)
+```
+
+---
+
+# Further reading
+
+- https://rstats.wtf
+- https://bookdown.org/csgillespie/efficientR
+    - especially the workflow/project planning package
+
+---
+
+# For fun
+
+```{r}
+library(cowsay)
+library(praise)
+praise("${exclamation}!! The dpiR UseR Group is ${adjective}") %>% 
+  say("random")
+```
